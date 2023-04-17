@@ -9,10 +9,18 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
-//Setup respone for home page
+
+//Setup response for home page
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
+
+//Setup response for /urls.json path
+app.get("/urls.json", (req, res) => {
+  //respond by sending JSON formatted urlDatabase
+  res.json(urlDatabase);
+})
+
 
 //Setup listener for requests
 app.listen(PORT, () => {
