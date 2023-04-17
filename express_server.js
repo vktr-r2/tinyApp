@@ -29,15 +29,11 @@ app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-// //Setup /set and /fetch path tests
-// app.get("/set", (req, res) => {
-//   const a = 1;
-//   res.send(`a = ${a}`);
-// });
-
-// app.get("/fetch", (req, res) => {
-//   res.send(`a = ${a}`);
-// });
+//Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
+app.get("/urls", (req, res) => {
+  const templateVars = { urls: urlDatabase };
+  res.render("urls_index", templateVars)
+});
 
 //Setup listener for requests
 app.listen(PORT, () => {
