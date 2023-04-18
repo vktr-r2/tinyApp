@@ -72,6 +72,14 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser 
 });
 
+//Handles POST route that DELETEs URL from our urlDatabase object
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect("urls_index");  //Use res.redirect to redirect user to the new id in browser 
+});
+
+
+
 //Handles redirect to longURL when short URL is used
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
@@ -79,7 +87,7 @@ app.get("/u/:id", (req, res) => {
 });
 
 
-
+//Handles /urls/:id path.  id and longURL passed to ejs template through templateVars variable
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
     res.render("urls_show", templateVars);
