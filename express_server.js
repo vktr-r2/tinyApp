@@ -63,7 +63,7 @@ app.get("/urls/new", (req, res) => {
 
 
 
-
+// vvv BUTTONS vvv //
 
 //Handles post responses coming in from submission form (/urls/new path)
 app.post("/urls", (req, res) => {
@@ -77,6 +77,20 @@ app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page
 });                        //!! res.redirect only works with path, cannot pass template as argument
+
+//Handles POST route that redirects user to the Edit page (triggered by Edit button)
+app.post("/urls/:id/edit", (req, res) => {
+  res.redirect(`/urls/${req.params.id}`);  //Redirect to the urlDatabase.id page
+});  
+
+//Handles POST route that submits the updated URL to our urlDatabase object (triggered by Submit button)
+app.post("/urls/:id/submit", (req, res) => {
+  console.log(req.body);
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page after submit
+});                        
+
+
 
 
 
