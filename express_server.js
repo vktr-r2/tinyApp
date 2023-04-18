@@ -35,9 +35,21 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars)
 });
 
+//Response for /urls/new path
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
+
+//Implement .urlencoded method to parse the body received
+app.use(express.urlencoded({ extended: true }));
+
+//Handles post responses coming in from submission form (/urls/new path)
+app.post("/urls", (req, res) => {
+  console.log(req.body); // Log the POST request body to the console
+  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+});
+
+
 
 //This code snippet is defining a route for an HTTP GET request on the path "/urls/:id". The ":id" part of the path is a parameter that will be dynamically replaced with a specific value when the request is made.
 
