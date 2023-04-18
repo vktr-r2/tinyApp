@@ -72,11 +72,11 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser 
 });
 
-//Handles POST route that DELETEs URL from our urlDatabase object
+//Handles POST route that DELETEs URL from our urlDatabase object (triggered by delete button)
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
-  res.redirect("urls_index");  //Use res.redirect to redirect user to the new id in browser 
-});
+  res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page
+});                        //!! res.redirect only works with path, cannot pass template as argument
 
 
 
