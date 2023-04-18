@@ -20,7 +20,7 @@ const urlDatabase = {
 
 //Setup listener for requests
 app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
+  console.log(`Vik's TinyURL app listening on port ${PORT}!`);
 });
 
 
@@ -63,9 +63,17 @@ app.use(express.urlencoded({ extended: true }));
 
 //Handles post responses coming in from submission form (/urls/new path)
 app.post("/urls", (req, res) => {
-  console.log(req.body); // Log the POST request body to the console
-  res.send("Ok"); // Respond with 'Ok' (we will replace this)
+  let id = generateRandomString();
+  urlDatabase[id] = req.body.longURL
+  res.redirect(`/urls/${id}`);
 });
+
+
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id];
+  res.redirect(longURL);
+});
+
 
 //This code snippet is defining a route for an HTTP GET request on the path "/urls/:id". The ":id" part of the path is a parameter that will be dynamically replaced with a specific value when the request is made.
 
@@ -97,3 +105,4 @@ function generateRandomString() {
   }
   return randomString;
 };
+
