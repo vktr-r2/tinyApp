@@ -3,6 +3,9 @@ const express = require("express");
 const app = express();
 const PORT = 8080;
 
+
+
+
 //Set ejs as view engine
 app.set("view engine", "ejs");
 
@@ -11,6 +14,16 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+
+
+
+
+//Setup listener for requests
+app.listen(PORT, () => {
+  console.log(`Example app listening on port ${PORT}!`);
+});
+
+
 
 
 //Setup response for home page
@@ -40,6 +53,11 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
 
+
+
+
+
+
 //Implement .urlencoded method to parse the body received
 app.use(express.urlencoded({ extended: true }));
 
@@ -48,8 +66,6 @@ app.post("/urls", (req, res) => {
   console.log(req.body); // Log the POST request body to the console
   res.send("Ok"); // Respond with 'Ok' (we will replace this)
 });
-
-
 
 //This code snippet is defining a route for an HTTP GET request on the path "/urls/:id". The ":id" part of the path is a parameter that will be dynamically replaced with a specific value when the request is made.
 
@@ -70,8 +86,14 @@ app.get("/urls/:id", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-//Setup listener for requests
-app.listen(PORT, () => {
-  console.log(`Example app listening on port ${PORT}!`);
-});
 
+
+function generateRandomString() {
+  let randomString = '';
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  for (let i = 0; i <=6; i++) {
+    charIndex = Math.floor(Math.random() * characters.length);
+    randomString += characters[charIndex];
+  }
+  return randomString;
+};
