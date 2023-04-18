@@ -18,10 +18,6 @@ const urlDatabase = {
 
 
 
-//Setup listener for requests
-app.listen(PORT, () => {
-  console.log(`Vik's TinyURL app listening on port ${PORT}!`);
-});
 
 
 
@@ -68,7 +64,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser 
 });
 
-
+//Handles redirect to longURL when short URL is used
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
   res.redirect(longURL);
@@ -79,22 +75,29 @@ app.get("/u/:id", (req, res) => {
 app.get("/urls/:id", (req, res) => {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
   // if (!templateVars.id) {
-  //   var err = new Error('Not Found');
-  //   err.status = 404;
-  //   next(err);
-  // }
-  res.render("urls_show", templateVars);
-});
-
-
-
-const generateRandomString = function() {
-  let randomString = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i <= 6; i++) {
-    let charIndex = Math.floor(Math.random() * characters.length);
-    randomString += characters[charIndex];
-  }
-  return randomString;
-};
-
+    //   var err = new Error('Not Found');
+    //   err.status = 404;
+    //   next(err);
+    // }
+    res.render("urls_show", templateVars);
+  });
+  
+  app.use((req, res, next) => {
+    res.status(404).send(
+      "<h1>Page not found on the server</h1>")
+    })
+    
+    const generateRandomString = function() {
+      let randomString = '';
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+      for (let i = 0; i <= 6; i++) {
+        let charIndex = Math.floor(Math.random() * characters.length);
+        randomString += characters[charIndex];
+      }
+      return randomString;
+    };
+    
+    //Setup listener for requests
+    app.listen(PORT, () => {
+      console.log(`Vik's TinyURL app listening on port ${PORT}!`);
+    });
