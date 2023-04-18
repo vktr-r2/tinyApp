@@ -35,6 +35,10 @@ app.get("/urls", (req, res) => {
   res.render("urls_index", templateVars)
 });
 
+app.get("/urls/new", (req, res) => {
+  res.render("urls_new");
+});
+
 //This code snippet is defining a route for an HTTP GET request on the path "/urls/:id". The ":id" part of the path is a parameter that will be dynamically replaced with a specific value when the request is made.
 
 //When a client makes a GET request to this route, the function defined as the second argument (the callback function) will be executed. This function takes two arguments, req and res, which represent the request and response objects respectively.
@@ -58,3 +62,4 @@ app.get("/urls/:id", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
