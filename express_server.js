@@ -45,7 +45,7 @@ app.get("/hello", (req, res) => {
 //Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
 app.get("/urls", (req, res) => {
   const templateVars = { urls: urlDatabase };
-  res.render("urls_index", templateVars)
+  res.render("urls_index", templateVars);
 });
 
 //Response for /urls/new path
@@ -64,7 +64,7 @@ app.use(express.urlencoded({ extended: true }));
 //Handles post responses coming in from submission form (/urls/new path)
 app.post("/urls", (req, res) => {
   let id = generateRandomString();
-  urlDatabase[id] = req.body.longURL
+  urlDatabase[id] = req.body.longURL;
   res.redirect(`/urls/${id}`);
 });
 
@@ -96,11 +96,11 @@ app.get("/urls/:id", (req, res) => {
 
 
 
-function generateRandomString() {
+const generateRandomString = function() {
   let randomString = '';
   const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  for (let i = 0; i <=6; i++) {
-    charIndex = Math.floor(Math.random() * characters.length);
+  for (let i = 0; i <= 6; i++) {
+    let charIndex = Math.floor(Math.random() * characters.length);
     randomString += characters[charIndex];
   }
   return randomString;
