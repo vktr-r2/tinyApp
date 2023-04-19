@@ -103,16 +103,20 @@ app.post("/urls/:id/submit", (req, res) => {
 
 
 
-// vvv LOGIN & COOKIES vvv //
+// vvv LOGIN/LOGOUT & COOKIES vvv //
 
+//Handle login, set username to cookie
 app.post("/login", (req, res) => {
   const user = req.body.username;
   res.cookie('username', user);
   res.redirect(`/urls/`); //
 });
 
-
-
+//Handle logout, clear cookie
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  res.redirect(`/urls/`); //
+});
 
 
 
