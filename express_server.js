@@ -80,15 +80,29 @@ app.post("/urls/:id/delete", (req, res) => {
 
 //Handles POST route that redirects user to the Edit page (triggered by Edit button)
 app.post("/urls/:id/edit", (req, res) => {
-  res.redirect(`/urls/${req.params.id}`);  //Redirect to the urlDatabase.id page
+  res.redirect(`/urls/${req.params.id}`);  //Redirect to the urlDatabase[id] page
 });  
 
 //Handles POST route that submits the updated URL to our urlDatabase object (triggered by Submit button)
 app.post("/urls/:id/submit", (req, res) => {
-  console.log(req.body);
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page after submit
 });                        
+
+
+
+
+
+// vvv LOGIN & COOKIES vvv //
+
+app.post("/login", (req, res) => {
+  const username = req.body.username;
+  res.cookie('username', username, { path: '/' });
+  res.redirect('/urls');
+}); 
+
+
+
 
 
 
