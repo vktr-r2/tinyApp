@@ -68,20 +68,18 @@ app.get("/urls.json", (req, res) => {
 
 //Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
 app.get("/urls", (req, res) => {
-  const currentUsername = req.cookies["username"];
+  const currentUser = users[req.cookies["user"]];
   const templateVars = {
     urls: urlDatabase,
-    user: currentUsername
+    currentUser
   };
   res.render("urls_index", templateVars);
 });
 
 //Response for /urls/new path
 app.get("/urls/new", (req, res) => {
-  const currentUsername = req.cookies["username"];
-  const templateVars = {
-    user: currentUsername
-  };
+  const currentUser = users[req.cookies["user"]];
+  const templateVars = { currentUser };
   res.render("urls_new", templateVars);
 });
 
@@ -130,22 +128,23 @@ app.post("/urls/:id/submit", (req, res) => {
 //Handle login, set username to cookie
 app.post("/login", (req, res) => {
   const user = req.body.username;
-  res.cookie("username", user);
+  res.cookie("user" , userId);
   res.redirect("/urls/"); //
 });
 
 //Handle logout, clear cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
+  res.clearCookie("user");
   res.redirect("/urls/"); //
 });
 
 //Handle POST route that registers new user
 app.post("/register", (req, res) => {
-  const newId = generateRandomString();
-  users[newId] = {email: req.body.email,
+  const userId = generateRandomString();
+  users[userId] = {email: req.body.email,
   password: req.body.password}
-  res.cookie("userID" , newId)
+  console.log(users);
+  res.cookie("user" , userId);
   res.redirect("/urls/");
 });
 
@@ -161,8 +160,8 @@ app.get("/u/:id", (req, res) => {
 
 //Handles /urls/:id path.  id and longURL passed to ejs template through templateVars variable
 app.get("/urls/:id", (req, res) => {
-  const currentUsername = req.cookies["username"];
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: currentUsername };
+  const currentUser = users[req.cookies["user"]];
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], currentUser };
   res.render("urls_show", templateVars);
 });
   
