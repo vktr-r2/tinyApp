@@ -83,10 +83,15 @@ app.get("/urls/new", (req, res) => {
   res.render("urls_new", templateVars);
 });
 
+//Endpoint for register page
 app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
+//Endpoint for login page
+app.get("/login", (req, res) => {
+  res.render("urls_login");
+});
 
 
 
