@@ -22,13 +22,15 @@ const urlDatabase = {
     id: "b6UTxQ",
     longURL: "https://www.tsn.ca",
     userID: "admin",
-    createdAt: "2023-01-01"
+    createdAt: "2023-01-01",
+    usageTally: 0
   },
   i3BoGr: {
     id: "i3BoGr",
     longURL: "https://www.google.ca",
     userID: "admin",
-    createdAt: '2023-01-01'
+    createdAt: '2023-01-01',
+    usageTally: 0
   }
 };
 
