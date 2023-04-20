@@ -122,7 +122,9 @@ app.post("/urls/:id/submit", (req, res) => {
 
 //Handle POST route that registers new user
 app.post("/register", (req, res) => {
-  const newId =
+  const newId = generateRandomString();
+  users[newId] = {email: req.body.email,
+  password: req.body.password}
   res.redirect("/urls/");
 });
 
