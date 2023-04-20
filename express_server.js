@@ -19,6 +19,28 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+
+//List of registered users
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+  admin: {
+    id: "admin",
+    email: "vik.ristic@gmail.com",
+    password: "123test"
+  }
+};
+
+
+
 //Function used to generate random ID for shortened URL
 const generateRandomString = function() {
   let randomString = '';
@@ -38,15 +60,10 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-//Setup response for /urls.json path
+//Setup response for /urls.json path ///DELETE AFTER DEVELOPMENT
 app.get("/urls.json", (req, res) => {
   //respond by sending JSON formatted urlDatabase
   res.json(urlDatabase);
-});
-
-//Setup response for /hello path
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
 
 //Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
@@ -66,6 +83,10 @@ app.get("/urls/new", (req, res) => {
     user: currentUsername
   };
   res.render("urls_new", templateVars);
+});
+
+app.get("/register", (req, res) => {
+  res.render("urls_register")
 });
 
 
@@ -97,6 +118,12 @@ app.post("/urls/:id/edit", (req, res) => {
 app.post("/urls/:id/submit", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page after submit
+});
+
+//Handle POST route that registers new user
+app.post("/register", (req, res) => {
+  const newId =
+  res.redirect("/urls/");
 });
 
 
