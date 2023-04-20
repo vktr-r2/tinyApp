@@ -84,7 +84,7 @@ app.get("/urls/new", (req, res) => {
 });
 
 app.get("/register", (req, res) => {
-  res.render("urls_register")
+  res.render("urls_register");
 });
 
 
@@ -140,10 +140,30 @@ app.post("/logout", (req, res) => {
 
 //Handle POST route that registers new user
 app.post("/register", (req, res) => {
+
+  //Check if user exists
+  for (const user in users) {
+    console.log(users[user].email);
+    if (req.body.email === users[user].email) {
+      res.status(400).send('User already registered.  Please try to login.');
+      console.log(users);
+      return;
+    }
+  }
+  //Check email and password both entered
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400).send('Enter email and password to register');
+    console.log(users);
+    return;
+  }
+
+
+  
   const userId = generateRandomString();
+
   users[userId] = {email: req.body.email,
-  password: req.body.password}
-  console.log(users);
+    password: req.body.password};
+
   res.cookie("user" , userId);
   res.redirect("/urls/");
 });
