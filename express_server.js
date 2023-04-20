@@ -1,6 +1,7 @@
 // Import express / Assign it to variable 'app' for convenience / Set default port
 const express = require("express");
 const cookieParser = require("cookie-parser");
+const bcrypt = require("bcryptjs");
 const app = express();
 const PORT = 8080;
 
@@ -261,8 +262,9 @@ app.post("/register", (req, res) => {
     
     //Add email and password values to new user
     users[userId] = {id: userId, email: req.body.email,
-      password: req.body.password};
+      password: bcrypt.hashSync(req.body.password, 10)};
     
+    console.log(users[userId]);
     //Set cookie to logged-in state
     res.cookie("user" , userId);
     res.redirect("/urls/");
