@@ -1,6 +1,6 @@
 // Import express / Assign it to variable 'app' for convenience / Set default port
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080;
 
@@ -43,8 +43,8 @@ const users = {
 
 //Function used to generate random ID for shortened URL
 const generateRandomString = function() {
-  let randomString = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let randomString = "";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i <= 6; i++) {
     let charIndex = Math.floor(Math.random() * characters.length);
     randomString += characters[charIndex];
@@ -120,13 +120,6 @@ app.post("/urls/:id/submit", (req, res) => {
   res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page after submit
 });
 
-//Handle POST route that registers new user
-app.post("/register", (req, res) => {
-  const newId = generateRandomString();
-  users[newId] = {email: req.body.email,
-  password: req.body.password}
-  res.redirect("/urls/");
-});
 
 
 
@@ -137,16 +130,24 @@ app.post("/register", (req, res) => {
 //Handle login, set username to cookie
 app.post("/login", (req, res) => {
   const user = req.body.username;
-  res.cookie('username', user);
-  res.redirect(`/urls/`); //
+  res.cookie("username", user);
+  res.redirect("/urls/"); //
 });
 
 //Handle logout, clear cookie
 app.post("/logout", (req, res) => {
   res.clearCookie("username");
-  res.redirect(`/urls/`); //
+  res.redirect("/urls/"); //
 });
 
+//Handle POST route that registers new user
+app.post("/register", (req, res) => {
+  const newId = generateRandomString();
+  users[newId] = {email: req.body.email,
+  password: req.body.password}
+  res.cookie("userID" , newId)
+  res.redirect("/urls/");
+});
 
 
 
