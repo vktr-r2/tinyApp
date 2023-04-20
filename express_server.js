@@ -5,14 +5,10 @@ const app = express();
 const PORT = 8080;
 
 
-
 //<<<<< MIDDLEWARE >>>>>\\
-//Set ejs as view engine
 app.set("view engine", "ejs");
-//Decode input from front end to be able to work with in back end using .urlencoded
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-
 
 
 //<<<<< DATABASES >>>>>\\
@@ -80,8 +76,8 @@ const userLookup = (email) => {
 const urlsForUser = (id) => {
   const myURLs = {}
   for (const URL in urlDatabase) {
-    console.log(URL);
-    console.log(urlDatabase[URL].userID);
+    // console.log(URL);
+    // console.log(urlDatabase[URL].userID);
     if (id === urlDatabase[URL].userID) {
       myURLs[URL] = urlDatabase[URL];
     }
@@ -92,47 +88,61 @@ const urlsForUser = (id) => {
 
 
 
-//Setup response for home page
+//GET homepage(login page)
 app.get("/", (req, res) => {
-  res.send("Hello!");
+  res.render("urls_login");
 });
 
-//Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
+
+//GET URLs index page > send data to template via templateVars
 app.get("/urls", (req, res) => {
   const currentUser = users[req.cookies["user"]];
-  console.log(currentUser);
+  if (currentUser) {
   myURLs = urlsForUser(currentUser.id);
   const templateVars = {
     urls: myURLs,
     currentUser
   };
   res.render("urls_index", templateVars);
+}
+res.render("urls_login")
 });
 
-//Response for /urls/new path
+
+//GET NEW URL page
 app.get("/urls/new", (req, res) => {
   if (!req.cookies["user"]) {
     res.render("urls_login")
     return;
-    }
+  }
   const currentUser = users[req.cookies["user"]];
   const templateVars = { currentUser };
   res.render("urls_new", templateVars);
 });
 
-//Endpoint for register page
+//GET registration form page
 app.get("/register", (req, res) => {
   res.render("urls_register");
 });
 
-//Endpoint for login page
+//GET login form page
 app.get("/login", (req, res) => {
   if (!req.cookies["user"]) {
     res.render("urls_login")
-    }
+  }
   res.redirect("/urls")
 });
 
+//GET longURL page when short URL used
+app.get("/u/:id", (req, res) => {
+  const longURL = urlDatabase[req.params.id].longURL;
+
+  if (longURL === undefined) {
+    res.status(404).send('URL not found')
+  }
+
+  res.redirect(longURL);
+});
 
 
 
@@ -157,13 +167,24 @@ app.post("/urls", (req, res) => {
     createdAt: date
   };
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser
+  return;
 });
 
 //Handles POST route that DELETEs URL from our urlDatabase object (triggered by delete button)
 app.post("/urls/:id/delete", (req, res) => {
-  delete urlDatabase[req.params.id];
-  res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page
-});                        //!! res.redirect only works with path, cannot pass template as argument
+
+  const currentUser = users[req.cookies["user"]];
+  myURLs = urlsForUser(currentUser.id);
+  for (const URL in myURLs) {
+    if (req.params.id === URL) {
+      delete urlDatabase[req.params.id];
+      res.redirect("/urls/");
+    }}
+
+    res.status(403).send('Forbidden : You do not have access to this page.')
+
+});
+
 
 //Handles POST route that redirects user to the Edit page (triggered by Edit button)
 app.post("/urls/:id/edit", (req, res) => {
@@ -173,7 +194,7 @@ app.post("/urls/:id/edit", (req, res) => {
 //Handles POST route that submits the updated URL to our urlDatabase object (triggered by Submit button)
 app.post("/urls/:id/submit", (req, res) => {
   urlDatabase[req.params.id].longURL = req.body.longURL;
-  console.log(urlDatabase);
+  // console.log(urlDatabase);
   res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page after submit
 });
 
@@ -184,7 +205,7 @@ app.post("/urls/:id/submit", (req, res) => {
 
 //<<<<< LOGIN/LOGOUT & SET COOKIES >>>>>\\
 
-//Handle login, set username to cookie
+//POST Handle login, set username to cookie
 app.post("/login", (req, res) => {
 
   const email = req.body.email;
@@ -212,7 +233,7 @@ app.post("/login", (req, res) => {
   res.redirect("/urls/");
 });
 
-//Logout, clear cookie
+//POST Logout, clear cookie
 app.post("/logout", (req, res) => {
   res.clearCookie("user");
   res.redirect("/login"); //
@@ -249,30 +270,23 @@ app.post("/register", (req, res) => {
 });
 
 
-
-
-//Handles redirect to longURL when short URL is used
-app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id].longURL;
-
-  if (longURL === undefined) {
-    res.status(404).send('URL not found')
-  }
-
-  res.redirect(longURL);
-});
-
-
-//Handles /urls/:id path.  id and longURL passed to ejs template through templateVars variable
+//GET short URL page within app
 app.get("/urls/:id", (req, res) => {
   const currentUser = users[req.cookies["user"]];
 
   if (!currentUser) {
-    res.status(403).send('Forbidden : You do not have access to this page.s')
+    res.status(403).send('Forbidden : You do not have access to this page.')
   }
 
+  myURLs = urlsForUser(currentUser.id);
+  
+  for (const URL in myURLs) {
+    if (req.params.id === URL) {
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, currentUser };
   res.render("urls_show", templateVars);
+    }}
+
+  res.status(403).send('Forbidden : You do not have access to this page.')
 });
   
     
