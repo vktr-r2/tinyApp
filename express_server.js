@@ -18,8 +18,18 @@ app.use(cookieParser());
 //<<<<< DATABASES >>>>>\\
 // URLs
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  b6UTxQ: {
+    id: "b6UTxQ",
+    longURL: "https://www.tsn.ca",
+    userID: "admin",
+    createdAt: "2023-01-01"
+  },
+  i3BoGr: {
+    id: "i3BoGr",
+    longURL: "https://www.google.ca",
+    userID: "admin",
+    createdAt: '2023-01-01'
+  }
 };
 
 //Registered Users
@@ -118,8 +128,18 @@ app.post("/urls", (req, res) => {
     res.status(403).send('Must be logged in to submit URLs')
     return;
     }
-  let id = generateRandomString();  //Assign my random string output to id
-  urlDatabase[id] = req.body.longURL;  //Add id and longURL propert to existing urlDatabase object
+  const id = generateRandomString();  //Assign my random string output to id
+  let date = new Date();              //Find date for new URL object 
+  date = date.toLocaleDateString();
+
+  //create new URL object, store url id,
+  urlDatabase[id] = {
+    id,
+    longURL: req.body.longURL,
+    userID: req.cookies["user"],
+    createdAt: date
+  };
+  console.log(urlDatabase)
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser
 });
 
@@ -230,7 +250,7 @@ app.get("/u/:id", (req, res) => {
 //Handles /urls/:id path.  id and longURL passed to ejs template through templateVars variable
 app.get("/urls/:id", (req, res) => {
   const currentUser = users[req.cookies["user"]];
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], currentUser };
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, currentUser };
   res.render("urls_show", templateVars);
 });
   
