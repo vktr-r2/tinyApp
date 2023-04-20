@@ -221,11 +221,11 @@ app.post("/login", (req, res) => {
   //Email exists
   if (userToVerify !== null) {
     //Wrong password
-    if (userToVerify.password !== password) {
+    if (bcrypt.compareSync(password, userToVerify.password) === false) {
       res.status(403).send('Email or password does not match');
     }
     //Correct password
-    if (userToVerify.password === password) {
+    if (bcrypt.compareSync(password, userToVerify.password) === true) {
       const userId = userToVerify.id;
       res.cookie("user", userId);
     }
@@ -264,7 +264,6 @@ app.post("/register", (req, res) => {
     users[userId] = {id: userId, email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)};
     
-    console.log(users[userId]);
     //Set cookie to logged-in state
     res.cookie("user" , userId);
     res.redirect("/urls/");
