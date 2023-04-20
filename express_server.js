@@ -266,6 +266,11 @@ app.get("/u/:id", (req, res) => {
 //Handles /urls/:id path.  id and longURL passed to ejs template through templateVars variable
 app.get("/urls/:id", (req, res) => {
   const currentUser = users[req.cookies["user"]];
+
+  if (!currentUser) {
+    res.status(403).send('Forbidden : You do not have access to this page.s')
+  }
+
   const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, currentUser };
   res.render("urls_show", templateVars);
 });
