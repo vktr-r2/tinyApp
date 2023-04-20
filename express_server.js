@@ -1,33 +1,68 @@
 // Import express / Assign it to variable 'app' for convenience / Set default port
 const express = require("express");
-const cookieParser = require('cookie-parser');
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080;
 
 
 
-//<<<<<MIDDLEWARE>>>>>\\
+//<<<<< MIDDLEWARE >>>>>\\
 //Set ejs as view engine
 app.set("view engine", "ejs");
 //Decode input from front end to be able to work with in back end using .urlencoded
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// List of URLs
+
+
+//<<<<< DATABASES >>>>>\\
+// URLs
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-//Function used to generate random ID for shortened URL
-const generateRandomString = function() {
-  let randomString = '';
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+//Registered Users
+const users = {
+  userRandomID: {
+    id: "userRandomID",
+    email: "user@example.com",
+    password: "purple-monkey-dinosaur",
+  },
+  user2RandomID: {
+    id: "user2RandomID",
+    email: "user2@example.com",
+    password: "dishwasher-funk",
+  },
+  admin: {
+    id: "admin",
+    email: "vik.ristic@gmail.com",
+    password: "123test"
+  }
+};
+
+
+
+//<<<<< HELPER FUNCTIONS >>>>>\\
+//Generate random 6 char string (URL and user IDs)
+const generateRandomString = () => {
+  let randomString = "";
+  const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i <= 6; i++) {
     let charIndex = Math.floor(Math.random() * characters.length);
     randomString += characters[charIndex];
   }
   return randomString;
+};
+
+//Lookup users
+const userLookup = (email) => {
+  for (const user in users) {
+    if (email === users[user].email) {
+      return users[user];
+    }
+  }
+  return null;
 };
 
 
@@ -38,42 +73,38 @@ app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
-//Setup response for /urls.json path
-app.get("/urls.json", (req, res) => {
-  //respond by sending JSON formatted urlDatabase
-  res.json(urlDatabase);
-});
-
-//Setup response for /hello path
-app.get("/hello", (req, res) => {
-  res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
-
 //Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
 app.get("/urls", (req, res) => {
-  const currentUsername = req.cookies["username"];
+  const currentUser = users[req.cookies["user"]];
   const templateVars = {
     urls: urlDatabase,
-    user: currentUsername
+    currentUser
   };
   res.render("urls_index", templateVars);
 });
 
 //Response for /urls/new path
 app.get("/urls/new", (req, res) => {
-  const currentUsername = req.cookies["username"];
-  const templateVars = {
-    user: currentUsername
-  };
+  const currentUser = users[req.cookies["user"]];
+  const templateVars = { currentUser };
   res.render("urls_new", templateVars);
+});
+
+//Endpoint for register page
+app.get("/register", (req, res) => {
+  res.render("urls_register");
+});
+
+//Endpoint for login page
+app.get("/login", (req, res) => {
+  res.render("urls_login");
 });
 
 
 
 
 
-
-// vvv BUTTONS vvv //
+//<<<<< BUTTONS >>>>>\\
 
 //Handles post responses coming in from submission form (/urls/new path)
 app.post("/urls", (req, res) => {
@@ -103,21 +134,73 @@ app.post("/urls/:id/submit", (req, res) => {
 
 
 
-// vvv LOGIN/LOGOUT & COOKIES vvv //
+
+//<<<<< LOGIN/LOGOUT & SET COOKIES >>>>>\\
 
 //Handle login, set username to cookie
 app.post("/login", (req, res) => {
-  const user = req.body.username;
-  res.cookie('username', user);
-  res.redirect(`/urls/`); //
+
+  const email = req.body.email;
+  const password = req.body.password;
+  const userToVerify = userLookup(email);
+
+  //Email doesn't exist
+  if (userToVerify === null) {
+    res.status(403).send('Email or password does not match');
+  }
+
+  //Email exists
+  if (userToVerify !== null) {
+    //Wrong password
+    if (userToVerify.password !== password) {
+      res.status(403).send('Email or password does not match');
+    }
+    //Correct password
+    if (userToVerify.password === password) {
+      const userId = userToVerify.id;
+      console.log(userToVerify.id);
+      res.cookie("user", userId);
+    }
+  }
+
+  res.redirect("/urls/");
 });
 
-//Handle logout, clear cookie
+//Logout, clear cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie("username");
-  res.redirect(`/urls/`); //
+  res.clearCookie("user");
+  res.redirect("/login"); //
 });
 
+
+//POST register new user
+app.post("/register", (req, res) => {
+
+  //Check if user exists
+  if (userLookup(req.body.email) !== null) {
+    res.status(400).send('User already registered. Please try to login.');
+  }
+
+  //Check email and password both entered
+  if (req.body.email === '' || req.body.password === '') {
+    res.status(400).send('Enter email and password to register');
+    return;
+  }
+
+  //If user doesn't already exist
+  if (userLookup(req.body.email) === null) {
+    //Generate new unique userId for new registration
+    const userId = generateRandomString();
+    
+    //Add email and password values to new user
+    users[userId] = {id: userId, email: req.body.email,
+      password: req.body.password};
+    
+    //Set cookie to logged-in state
+    res.cookie("user" , userId);
+    res.redirect("/urls/");
+  }
+});
 
 
 
@@ -131,8 +214,8 @@ app.get("/u/:id", (req, res) => {
 
 //Handles /urls/:id path.  id and longURL passed to ejs template through templateVars variable
 app.get("/urls/:id", (req, res) => {
-  const currentUsername = req.cookies["username"];
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], user: currentUsername };
+  const currentUser = users[req.cookies["user"]];
+  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id], currentUser };
   res.render("urls_show", templateVars);
 });
   

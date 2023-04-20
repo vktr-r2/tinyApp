@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!-- Bootstrap CSS -->
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css"
+      integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS"
+      crossorigin="anonymous"
+    />
+    <title>Viktor's TinyApp URL Shortener</title>
+  </head>
+
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-md navbar-dark bg-success">
+        <a class="navbar-brand" href="/urls">TinyApp</a>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-toggle="collapse"
+          data-target="#navbarNavAltMarkup"
+          aria-controls="navbarNavAltMarkup"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+        >
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse d-flex justify-content-between align-items-center" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" href="/urls">My URLs</a>
+            <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+          </div>
+          <h2 style="color:white;">Login &lt;&lt;</h2>
+        </div>
+      </nav>
+    </header>
+
+    <div class="container">
+      <div class="row justify-content-center mt-5">
+        <div class="col-md-6">
+          <div class="card">
+            <div class="card-header bg-white">
+              <h4>Login</h4>
+            </div>
+            <div class="card-body">
+              <form method="POST" action="/login">
+                <div class="form-group">
+                  <label for="email">Email address</label>
+                  <input
+                    type="email"
+                    class="form-control"
+                    id="email"
+                    name="email"
+                    placeholder="Enter email"
+                  />
+                  
+                </div>
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="password"
+                    name="password"
+                    placeholder="Password"
+                  />
+                </div>
+                <button type="submit" class="btn btn-success">Submit</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>9
