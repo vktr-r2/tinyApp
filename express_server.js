@@ -14,6 +14,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 
+
 //<<<<< DATABASES >>>>>\\
 // URLs
 const urlDatabase = {
@@ -41,6 +42,7 @@ const users = {
 };
 
 
+
 //<<<<< HELPER FUNCTIONS >>>>>\\
 //Generate random 6 char string (URL and user IDs)
 const generateRandomString = () => {
@@ -61,7 +63,7 @@ const userLookup = (email) => {
     }
   }
   return null;
-}
+};
 
 
 
@@ -69,12 +71,6 @@ const userLookup = (email) => {
 //Setup response for home page
 app.get("/", (req, res) => {
   res.send("Hello!");
-});
-
-//Setup response for /urls.json path ///DELETE AFTER DEVELOPMENT
-app.get("/urls.json", (req, res) => {
-  //respond by sending JSON formatted urlDatabase
-  res.json(urlDatabase);
 });
 
 //Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
@@ -108,7 +104,7 @@ app.get("/login", (req, res) => {
 
 
 
-// vvv BUTTONS vvv //
+//<<<<< BUTTONS >>>>>\\
 
 //Handles post responses coming in from submission form (/urls/new path)
 app.post("/urls", (req, res) => {
@@ -139,50 +135,71 @@ app.post("/urls/:id/submit", (req, res) => {
 
 
 
-// vvv LOGIN/LOGOUT & COOKIES vvv //
+//<<<<< LOGIN/LOGOUT & SET COOKIES >>>>>\\
 
 //Handle login, set username to cookie
 app.post("/login", (req, res) => {
-  const user = req.body.username;
-  res.cookie("user" , userId);
-  res.redirect("/urls/"); //
+
+  const email = req.body.email;
+  const password = req.body.password;
+  const userToVerify = userLookup(email);
+
+  //Email doesn't exist
+  if (userToVerify === null) {
+    res.status(403).send('Email or password does not match');
+  }
+
+  //Email exists
+  if (userToVerify !== null) {
+    //Wrong password
+    if (userToVerify.password !== password) {
+      res.status(403).send('Email or password does not match');
+    }
+    //Correct password
+    if (userToVerify.password === password) {
+      const userId = userToVerify.id;
+      console.log(userToVerify.id);
+      res.cookie("user", userId);
+    }
+  }
+
+  res.redirect("/urls/");
 });
 
-//Handle logout, clear cookie
+//Logout, clear cookie
 app.post("/logout", (req, res) => {
   res.clearCookie("user");
-  res.redirect("/urls/"); //
+  res.redirect("/login"); //
 });
 
-//Handle POST route that registers new user
+
+//POST register new user
 app.post("/register", (req, res) => {
 
   //Check if user exists
   if (userLookup(req.body.email) !== null) {
-    res.status(400).send('User already registered.  Please try to login.');
-      return;
+    res.status(400).send('User already registered. Please try to login.');
   }
-  // for (const user in users) {
-  //   if (req.body.email === users[user].email) {
-  //     res.status(400).send('User already registered.  Please try to login.');
-  //     return;
-  //   }
-  // }
+
   //Check email and password both entered
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send('Enter email and password to register');
     return;
   }
 
-
-  
-  const userId = generateRandomString();
-
-  users[userId] = {email: req.body.email,
-    password: req.body.password};
-
-  res.cookie("user" , userId);
-  res.redirect("/urls/");
+  //If user doesn't already exist
+  if (userLookup(req.body.email) === null) {
+    //Generate new unique userId for new registration
+    const userId = generateRandomString();
+    
+    //Add email and password values to new user
+    users[userId] = {id: userId, email: req.body.email,
+      password: req.body.password};
+    
+    //Set cookie to logged-in state
+    res.cookie("user" , userId);
+    res.redirect("/urls/");
+  }
 });
 
 
