@@ -85,6 +85,9 @@ app.get("/urls", (req, res) => {
 
 //Response for /urls/new path
 app.get("/urls/new", (req, res) => {
+  if (!req.cookies["user"]) {
+    res.render("urls_login")
+    }
   const currentUser = users[req.cookies["user"]];
   const templateVars = { currentUser };
   res.render("urls_new", templateVars);
@@ -97,7 +100,10 @@ app.get("/register", (req, res) => {
 
 //Endpoint for login page
 app.get("/login", (req, res) => {
-  res.render("urls_login");
+  if (!req.cookies["user"]) {
+    res.render("urls_login")
+    }
+  res.redirect("/urls")
 });
 
 
@@ -108,6 +114,10 @@ app.get("/login", (req, res) => {
 
 //Handles post responses coming in from submission form (/urls/new path)
 app.post("/urls", (req, res) => {
+  if (!req.cookies["user"]) {
+    res.status(403).send('Must be logged in to submit URLs')
+    return;
+    }
   let id = generateRandomString();  //Assign my random string output to id
   urlDatabase[id] = req.body.longURL;  //Add id and longURL propert to existing urlDatabase object
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser
@@ -208,6 +218,11 @@ app.post("/register", (req, res) => {
 //Handles redirect to longURL when short URL is used
 app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id];
+
+  if (longURL === undefined) {
+    res.status(404).send('URL not found')
+  }
+
   res.redirect(longURL);
 });
 
