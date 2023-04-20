@@ -26,10 +26,12 @@
         </div>
       <% } else { %>
         <div class="ml-auto d-flex align-items-center">
-          <p class=" navbar-brand my-0 mr-3">Please log in >></p>
-          <form method="POST" action="/login" class="form-inline">
-            <input type="login" class="form-control mr-3" id="login" name="username" placeholder="username">
-            <button type="submit" class="btn btn-primary">Login</button>
+          <p class=" navbar-brand my-0 mr-3">Login or Register >></p>
+          <form method="GET" action="/login" class="form-inline">
+            <button type="submit" class="btn btn-primary mx-2">Login</button>
+          </form>
+          <form method="GET" action="/register" class="form-inline">
+            <button type="submit" class="btn btn-primary mx-2">Register</button>
           </form>
         </div>
       <% } %>
