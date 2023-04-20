@@ -28,7 +28,7 @@ const urlDatabase = {
   i3BoGr: {
     id: "i3BoGr",
     longURL: "https://www.google.ca",
-    userID: "admin",
+    userID: "userRandomID",
     createdAt: '2023-01-01',
     usageTally: 0
   }
@@ -54,7 +54,6 @@ const users = {
 };
 
 
-
 //<<<<< HELPER FUNCTIONS >>>>>\\
 //Generate random 6 char string (URL and user IDs)
 const generateRandomString = () => {
@@ -77,6 +76,19 @@ const userLookup = (email) => {
   return null;
 };
 
+//Lookup URLs for user
+const urlsForUser = (id) => {
+  const myURLs = {}
+  for (const URL in urlDatabase) {
+    console.log(URL);
+    console.log(urlDatabase[URL].userID);
+    if (id === urlDatabase[URL].userID) {
+      myURLs[URL] = urlDatabase[URL];
+    }
+  }
+  return myURLs;
+};
+
 
 
 
@@ -88,8 +100,10 @@ app.get("/", (req, res) => {
 //Response for /urls path >> set templateVars to urls obj, call res.render to render urls_index using templateVars
 app.get("/urls", (req, res) => {
   const currentUser = users[req.cookies["user"]];
+  console.log(currentUser);
+  myURLs = urlsForUser(currentUser.id);
   const templateVars = {
-    urls: urlDatabase,
+    urls: myURLs,
     currentUser
   };
   res.render("urls_index", templateVars);
@@ -99,6 +113,7 @@ app.get("/urls", (req, res) => {
 app.get("/urls/new", (req, res) => {
   if (!req.cookies["user"]) {
     res.render("urls_login")
+    return;
     }
   const currentUser = users[req.cookies["user"]];
   const templateVars = { currentUser };
@@ -141,7 +156,6 @@ app.post("/urls", (req, res) => {
     userID: req.cookies["user"],
     createdAt: date
   };
-  console.log(urlDatabase)
   res.redirect(`/urls/${id}`);  //Use res.redirect to redirect user to the new id in browser
 });
 
@@ -158,7 +172,8 @@ app.post("/urls/:id/edit", (req, res) => {
 
 //Handles POST route that submits the updated URL to our urlDatabase object (triggered by Submit button)
 app.post("/urls/:id/submit", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+  urlDatabase[req.params.id].longURL = req.body.longURL;
+  console.log(urlDatabase);
   res.redirect("/urls/");  //Use res.redirect to redirect user to the urls index page after submit
 });
 
@@ -190,7 +205,6 @@ app.post("/login", (req, res) => {
     //Correct password
     if (userToVerify.password === password) {
       const userId = userToVerify.id;
-      console.log(userToVerify.id);
       res.cookie("user", userId);
     }
   }
@@ -239,7 +253,7 @@ app.post("/register", (req, res) => {
 
 //Handles redirect to longURL when short URL is used
 app.get("/u/:id", (req, res) => {
-  const longURL = urlDatabase[req.params.id];
+  const longURL = urlDatabase[req.params.id].longURL;
 
   if (longURL === undefined) {
     res.status(404).send('URL not found')

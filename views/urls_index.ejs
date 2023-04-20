@@ -18,6 +18,11 @@
   </head>
   <body>
     <%- include('partials/_header')%>
+    <% if (!currentUser) {%>
+      <div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+          <h2 class="text-center text-success">Please log in to view your saved URLs ...</h2>
+        </div>
+      <% } else {%>
     <main style="margin: 1em;">
       <h3>My URLs</h3>
       <table class="table">
@@ -50,6 +55,7 @@
           <% } %>
         </tbody>
       </table>
+      <% } %>
     </main>
     <!-- Bootstrap JS -->
     <script
