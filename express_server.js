@@ -6,21 +6,22 @@ const PORT = 8080;
 
 
 
-//<<<<<MIDDLEWARE>>>>>\\
+//<<<<< MIDDLEWARE >>>>>\\
 //Set ejs as view engine
 app.set("view engine", "ejs");
 //Decode input from front end to be able to work with in back end using .urlencoded
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// List of URLs
+
+//<<<<< DATABASES >>>>>\\
+// URLs
 const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
 
-
-//List of registered users
+//Registered Users
 const users = {
   userRandomID: {
     id: "userRandomID",
@@ -40,9 +41,9 @@ const users = {
 };
 
 
-
-//Function used to generate random ID for shortened URL
-const generateRandomString = function() {
+//<<<<< HELPER FUNCTIONS >>>>>\\
+//Generate random 6 char string (URL and user IDs)
+const generateRandomString = () => {
   let randomString = "";
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   for (let i = 0; i <= 6; i++) {
@@ -51,6 +52,16 @@ const generateRandomString = function() {
   }
   return randomString;
 };
+
+//Lookup users
+const userLookup = (email) => {
+  for (const user in users) {
+    if (email === users[user].email) {
+      return users[user];
+    }
+  }
+  return null;
+}
 
 
 
@@ -147,18 +158,19 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
 
   //Check if user exists
-  for (const user in users) {
-    console.log(users[user].email);
-    if (req.body.email === users[user].email) {
-      res.status(400).send('User already registered.  Please try to login.');
-      console.log(users);
+  if (userLookup(req.body.email) !== null) {
+    res.status(400).send('User already registered.  Please try to login.');
       return;
-    }
   }
+  // for (const user in users) {
+  //   if (req.body.email === users[user].email) {
+  //     res.status(400).send('User already registered.  Please try to login.');
+  //     return;
+  //   }
+  // }
   //Check email and password both entered
   if (req.body.email === '' || req.body.password === '') {
     res.status(400).send('Enter email and password to register');
-    console.log(users);
     return;
   }
 
