@@ -38,14 +38,14 @@ const urlDatabase = {
     longURL: "https://www.tsn.ca",
     userID: "admin",
     createdAt: "2023-01-01",
-    usageTally: 0
+    visits: 0
   },
   i3BoGr: {
     id: "i3BoGr",
     longURL: "https://www.google.ca",
     userID: "userRandomID",
     createdAt: '2023-01-01',
-    usageTally: 0
+    visits: 0
   }
 };
 
@@ -101,6 +101,7 @@ app.get("/urls/new", (req, res) => {
     return;
   }
   const currentUser = users[req.session.user_id];
+  console.log(req.session.user_id);
   const templateVars = { currentUser };
   res.render("urls_new", templateVars);
   return;
@@ -131,6 +132,8 @@ app.get("/u/:id", (req, res) => {
     return;
   }
 
+  urlDatabase[req.params.id].visits ++;
+
   res.redirect(longURL);
   return;
 });
@@ -158,7 +161,7 @@ app.post("/urls", (req, res) => {
     longURL: req.body.longURL,
     userID: req.session.user_id,
     createdAt: date,
-    usageTally: 0
+    visits: 0
   };
   //Redirect user to new URL's page
   res.redirect(`/urls/${id}`);
