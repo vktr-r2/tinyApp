@@ -2,6 +2,9 @@
 const express = require("express");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
+const cookieSession = require('cookie-session');
+const crypto = require('crypto');
+
 const app = express();
 const PORT = 8080;
 
@@ -10,10 +13,21 @@ app.listen(PORT, () => {
   console.log(`Vik's TinyURL app listening on port ${PORT}!`);
 });
 
+
+//<<<<<< SET KEYS >>>>>>\\
+const keys = [
+  crypto.randomBytes(32).toString('hex'),
+  crypto.randomBytes(32).toString('hex')
+];
+
+
 //<<<<< MIDDLEWARE >>>>>\\
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: keys
+}));
 
 
 //<<<<< DATABASES >>>>>\\
@@ -102,7 +116,7 @@ app.get("/", (req, res) => {
 
 //GET URLs index page > send data to template via templateVars
 app.get("/urls", (req, res) => {
-  const currentUser = users[req.cookies["user"]];
+  const currentUser = users[req.session.user_id];
   if (currentUser) {
     const myURLs = urlsForUser(currentUser.id);
     const templateVars = {
@@ -119,11 +133,11 @@ app.get("/urls", (req, res) => {
 
 //GET NEW URL page
 app.get("/urls/new", (req, res) => {
-  if (!req.cookies["user"]) {
+  if (!req.session.user_id) {
     res.render("urls_login");
     return;
   }
-  const currentUser = users[req.cookies["user"]];
+  const currentUser = users[req.session.user_id];
   const templateVars = { currentUser };
   res.render("urls_new", templateVars);
   return;
@@ -137,7 +151,7 @@ app.get("/register", (req, res) => {
 
 //GET login form page
 app.get("/login", (req, res) => {
-  if (!req.cookies["user"]) {
+  if (!req.session.user_id) {
     res.render("urls_login");
     return;
   }
@@ -166,7 +180,7 @@ app.get("/u/:id", (req, res) => {
 //POST new URL object for user
 app.post("/urls", (req, res) => {
   //If not logged in, throw 403
-  if (!req.cookies["user"]) {
+  if (!req.session.user_id) {
     res.status(403).send('Must be logged in to submit URLs');
     return;
   }
@@ -179,7 +193,7 @@ app.post("/urls", (req, res) => {
   urlDatabase[id] = {
     id,
     longURL: req.body.longURL,
-    userID: req.cookies["user"],
+    userID: req.session.user_id,
     createdAt: date,
     usageTally: 0
   };
@@ -191,7 +205,7 @@ app.post("/urls", (req, res) => {
 //POST DELETE existing URL object (delete button)
 app.post("/urls/:id/delete", (req, res) => {
   //Set currentUser to cookie "user"
-  const currentUser = users[req.cookies["user"]];
+  const currentUser = users[req.session.user_id];
   //Set myURLs to match URLs avail for currentUser
   const myURLs = urlsForUser(currentUser.id);
   //If URL to be changed is in myURLs for user, delete
@@ -252,7 +266,7 @@ app.post("/login", (req, res) => {
     //Correct password
     if (bcrypt.compareSync(password, userToVerify.password) === true) {
       const userId = userToVerify.id;
-      res.cookie("user", userId);
+      req.session.user_id = userId;
       
     }
   }
@@ -263,7 +277,7 @@ app.post("/login", (req, res) => {
 
 //POST Logout, clear cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie("user")
+  res.clearCookie("session")
   res.redirect("/login");
   return;
 });
@@ -293,7 +307,7 @@ app.post("/register", (req, res) => {
       password: bcrypt.hashSync(req.body.password, 10)};
     
     //Set cookie to logged-in state
-    res.cookie("user" , userId)
+    req.session.user_id = userId;
     res.redirect("/urls/");
     return;
   }
@@ -302,7 +316,7 @@ app.post("/register", (req, res) => {
 
 //GET short URL page within app
 app.get("/urls/:id", (req, res) => {
-  const currentUser = users[req.cookies["user"]];
+  const currentUser = users[req.session.user_id];
 
   if (!currentUser) {
     res.status(403).send('Forbidden : You do not have access to this page.');
