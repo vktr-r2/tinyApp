@@ -101,7 +101,6 @@ app.get("/urls/new", (req, res) => {
     return;
   }
   const currentUser = users[req.session.user_id];
-  console.log(req.session.user_id);
   const templateVars = { currentUser };
   res.render("urls_new", templateVars);
   return;
@@ -298,7 +297,6 @@ app.post("/register", (req, res) => {
   if (userLookup(req.body.email, users) === null) {
     //Generate new unique userId for new registration
     const userId = generateRandomString();
-    console.log(userId);
     //Add email and password values to new user
     users[userId] = {id: userId, email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)};
