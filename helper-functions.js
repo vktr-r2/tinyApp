@@ -11,24 +11,27 @@ const generateRandomString = () => {
 };
 
 //Lookup users
-const userLookup = (email) => {
-  for (const user in users) {
-    if (email === users[user].email) {
-      return users[user];
+const userLookup = (email, userDB) => {
+  for (const user in userDB) {
+    if (email === userDB[user].email) {
+      return userDB[user];
     }
   }
   return null;
 };
 
 //Lookup URLs for user
-const urlsForUser = (id) => {
+const urlsForUser = (id, urlDB) => {
   const myURLs = {};
-  for (const URL in urlDatabase) {
+  for (const URL in urlDB) {
     // console.log(URL);
     // console.log(urlDatabase[URL].userID);
-    if (id === urlDatabase[URL].userID) {
-      myURLs[URL] = urlDatabase[URL];
+    if (id === urlDB[URL].userID) {
+      myURLs[URL] = urlDB[URL];
     }
   }
   return myURLs;
 };
+
+
+module.exports = { generateRandomString, userLookup, urlsForUser };

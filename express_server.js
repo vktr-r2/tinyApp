@@ -1,9 +1,9 @@
 // Import express / Assign it to variable 'app' for convenience / Set default port
 const express = require("express");
-const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
 const cookieSession = require('cookie-session');
 const crypto = require('crypto');
+const { generateRandomString, userLookup, urlsForUser } = require('./helper-functions');
 
 const app = express();
 const PORT = 8080;
@@ -118,7 +118,7 @@ app.get("/", (req, res) => {
 app.get("/urls", (req, res) => {
   const currentUser = users[req.session.user_id];
   if (currentUser) {
-    const myURLs = urlsForUser(currentUser.id);
+    const myURLs = urlsForUser(currentUser.id, urlDatabase);
     const templateVars = {
       urls: myURLs,
       currentUser
@@ -207,7 +207,7 @@ app.post("/urls/:id/delete", (req, res) => {
   //Set currentUser to cookie "user"
   const currentUser = users[req.session.user_id];
   //Set myURLs to match URLs avail for currentUser
-  const myURLs = urlsForUser(currentUser.id);
+  const myURLs = urlsForUser(currentUser.id, urlDatabase);
   //If URL to be changed is in myURLs for user, delete
   for (const URL in myURLs) {
     if (req.params.id === URL) {
@@ -248,7 +248,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   //Store result of userToVerify function for email that was submitted
-  const userToVerify = userLookup(email);
+  const userToVerify = userLookup(email, users);
 
   //Email doesn't exist
   if (userToVerify === null) {
@@ -286,7 +286,7 @@ app.post("/logout", (req, res) => {
 app.post("/register", (req, res) => {
 
   //Check if user exists
-  if (userLookup(req.body.email) !== null) {
+  if (userLookup(req.body.email, users) !== null) {
     res.status(400).send('User already registered. Please try to login.');
     return;
   }
@@ -298,10 +298,10 @@ app.post("/register", (req, res) => {
   }
 
   //If user doesn't already exist
-  if (userLookup(req.body.email) === null) {
+  if (userLookup(req.body.email, users) === null) {
     //Generate new unique userId for new registration
     const userId = generateRandomString();
-    
+    console.log(userId);
     //Add email and password values to new user
     users[userId] = {id: userId, email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)};
@@ -309,6 +309,7 @@ app.post("/register", (req, res) => {
     //Set cookie to logged-in state
     req.session.user_id = userId;
     res.redirect("/urls/");
+    
     return;
   }
 });
@@ -323,7 +324,7 @@ app.get("/urls/:id", (req, res) => {
     return;
   }
 
-  const myURLs = urlsForUser(currentUser.id);
+  const myURLs = urlsForUser(currentUser.id, urlDatabase);
   
   for (const URL in myURLs) {
     if (req.params.id === URL) {
