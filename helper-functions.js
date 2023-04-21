@@ -1,5 +1,5 @@
 //<<<<< HELPER FUNCTIONS >>>>>\\
-//Generate random 6 char string (URL and user IDs)
+//Generate random 7 char string (URL and user IDs)
 const generateRandomString = () => {
   let randomString = "";
   const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
