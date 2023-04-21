@@ -309,8 +309,6 @@ app.post("/register", (req, res) => {
     //Add email and password values to new user
     users[userId] = {id: userId, email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)};
-
-    console.log(users[userId]);
     
     //Set cookie to logged-in state
     req.session.user_id = userId;
