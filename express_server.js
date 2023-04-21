@@ -253,7 +253,7 @@ app.post("/login", (req, res) => {
     if (bcrypt.compareSync(password, userToVerify.password) === true) {
       const userId = userToVerify.id;
       res.cookie("user", userId);
-      return;
+      
     }
   }
 
