@@ -1,9 +1,9 @@
-// Import express / Assign it to variable 'app' for convenience / Set default port
+// Import express / Assign it to variable "app" for convenience / Set default port
 const express = require("express");
 const bcrypt = require("bcryptjs");
-const cookieSession = require('cookie-session');
-const crypto = require('crypto');
-const { generateRandomString, userLookup, urlsForUser } = require('./helper-functions');
+const cookieSession = require("cookie-session");
+const crypto = require("crypto");
+const { generateRandomString, userLookup, urlsForUser } = require("./helper-functions");
 
 const app = express();
 const PORT = 8080;
@@ -16,8 +16,8 @@ app.listen(PORT, () => {
 
 //<<<<<< SET KEYS >>>>>>\\
 const keys = [
-  crypto.randomBytes(32).toString('hex'),
-  crypto.randomBytes(32).toString('hex')
+  crypto.randomBytes(32).toString("hex"),
+  crypto.randomBytes(32).toString("hex")
 ];
 
 
@@ -25,7 +25,7 @@ const keys = [
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieSession({
-  name: 'session',
+  name: "session",
   keys: keys
 }));
 
@@ -44,7 +44,7 @@ const urlDatabase = {
     id: "i3BoGr",
     longURL: "https://www.google.ca",
     userID: "userRandomID",
-    createdAt: '2023-01-01',
+    createdAt: "2023-01-01",
     visits: 0
   }
 };
@@ -128,7 +128,7 @@ app.get("/u/:id", (req, res) => {
   const longURL = urlDatabase[req.params.id].longURL;
 
   if (longURL === undefined) {
-    res.status(404).send('URL not found');
+    res.status(404).send("URL not found");
     return;
   }
 
@@ -139,15 +139,45 @@ app.get("/u/:id", (req, res) => {
 });
 
 
+//GET short URL page within app
+app.get("/urls/:id", (req, res) => {
+  const currentUser = users[req.session.user_id];
+
+  if (!currentUser) {
+    res.status(403).send("Forbidden : You do not have access to this page.");
+    return;
+  }
+
+  const myURLs = urlsForUser(currentUser.id, urlDatabase);
+  
+  for (const URL in myURLs) {
+    if (req.params.id === URL) {
+      const templateVars = {
+        id: req.params.id,
+        longURL: urlDatabase[req.params.id].longURL,
+        Created: urlDatabase[req.params.id].createdAt,
+        Visits: urlDatabase[req.params.id].visits,
+        currentUser
+      };
+      res.render("urls_show", templateVars);
+      return;
+    }
+  }
+
+  res.status(403).send("Forbidden : You do not have access to this page.");
+  return;
+});
 
 
-//<<<<< BUTTONS >>>>>\\
+
+
+//<<<<< POST >>>>>\\
 
 //POST new URL object for user
 app.post("/urls", (req, res) => {
   //If not logged in, throw 403
   if (!req.session.user_id) {
-    res.status(403).send('Must be logged in to submit URLs');
+    res.status(403).send("Must be logged in to submit URLs");
     return;
   }
   //Store new created_at date and unique ID for URL object
@@ -183,7 +213,7 @@ app.post("/urls/:id/delete", (req, res) => {
     }
   }
   //If user doesn't have permission to delete, throw 403
-  res.status(403).send('Forbidden : You do not have access to this page.');
+  res.status(403).send("Forbidden : You do not have access to this page.");
   return;
 });
 
@@ -197,6 +227,7 @@ app.post("/urls/:id/edit", (req, res) => {
 //POST submit new long URL to existing shortened URL id
 app.post("/urls/:id/submit", (req, res) => {
   urlDatabase[req.params.id].longURL = req.body.longURL;
+  urlDatabase[req.params.id].visits = 0;
   res.redirect("/urls/");
   return;
 });
@@ -206,7 +237,7 @@ app.post("/urls/:id/submit", (req, res) => {
 
 
 
-//<<<<< LOGIN/LOGOUT & SET COOKIES >>>>>\\
+//<<<<< POST: LOGIN/LOGOUT & SET COOKIES >>>>>\\
 
 //POST Handle login, set username to cookie
 app.post("/login", (req, res) => {
@@ -218,7 +249,7 @@ app.post("/login", (req, res) => {
 
   //Email doesn't exist
   if (userToVerify === null) {
-    res.status(403).send('Email or password does not match');
+    res.status(403).send("Email or password does not match");
     return;
   }
 
@@ -226,7 +257,7 @@ app.post("/login", (req, res) => {
   if (userToVerify !== null) {
     //Wrong password
     if (bcrypt.compareSync(password, userToVerify.password) === false) {
-      res.status(403).send('Email or password does not match');
+      res.status(403).send("Email or password does not match");
       return;
     }
     //Correct password
@@ -243,7 +274,7 @@ app.post("/login", (req, res) => {
 
 //POST Logout, clear cookie
 app.post("/logout", (req, res) => {
-  res.clearCookie("session")
+  res.clearCookie("session");
   res.redirect("/login");
   return;
 });
@@ -253,13 +284,13 @@ app.post("/register", (req, res) => {
 
   //Check if user exists
   if (userLookup(req.body.email, users) !== null) {
-    res.status(400).send('User already registered. Please try to login.');
+    res.status(400).send("User already registered. Please try to login.");
     return;
   }
 
   //Check email and password both entered
-  if (req.body.email === '' || req.body.password === '') {
-    res.status(400).send('Enter email and password to register');
+  if (req.body.email === "" || req.body.password === "") {
+    res.status(400).send("Enter email and password to register");
     return;
   }
 
@@ -279,30 +310,3 @@ app.post("/register", (req, res) => {
     return;
   }
 });
-
-
-//GET short URL page within app
-app.get("/urls/:id", (req, res) => {
-  const currentUser = users[req.session.user_id];
-
-  if (!currentUser) {
-    res.status(403).send('Forbidden : You do not have access to this page.');
-    return;
-  }
-
-  const myURLs = urlsForUser(currentUser.id, urlDatabase);
-  
-  for (const URL in myURLs) {
-    if (req.params.id === URL) {
-      const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id].longURL, currentUser };
-      res.render("urls_show", templateVars);
-      return;
-    }
-  }
-
-  res.status(403).send('Forbidden : You do not have access to this page.');
-  return;
-});
-  
-    
-    

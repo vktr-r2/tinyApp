@@ -20,16 +20,24 @@
         <p class="card-text">
           Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
         </p>
+        <br>
+        <p class="card-text">
+          Created: <%= Created %>
+          <br>
+          Visits: <%= Visits %>
+        </p>
       </div>
       <div class="card-footer text-muted"></div>
       <h4> Edit URL</h4>
-      <div class="container" style="margin-bottom: 20px;">
+      <div class="container" style="margin-bottom: 30px;">
         <form method="POST" action="/urls/<%= id %>/submit" class="form-inline d-flex justify-content-center">
           <label for="id" class="mr-4">New URL:</label>
           <input type="id" class="form-control" id="id" name="longURL" placeholder="http://">
           <button type="submit" class="btn btn-primary mx-4">Submit</button>
         </form>
-      </div>
+        <br>
+        <h6 style="color: #8B0000; margin-bottom: 20px;">WARNING: Editing URL will reset views count</h6>
+      </div>      
       </div>
     </div>
     <!-- Bootstrap JS -->
