@@ -36,17 +36,26 @@ const urlDatabase = {
   b6UTxQ: {
     id: "b6UTxQ",
     longURL: "https://www.tsn.ca",
-    userID: "admin",
+    userID: "aCJZuBd",
     createdAt: "2023-01-01",
     visits: 0
   },
   i3BoGr: {
     id: "i3BoGr",
     longURL: "https://www.google.ca",
-    userID: "userRandomID",
+    userID: "aCJZuBd",
+    createdAt: "2023-01-01",
+    visits: 0
+  },
+
+  lhTr1v: {
+    id: "aCJZlhTr1vBd",
+    longURL: "https://www.google.ca",
+    userID: "aCJZuBd",
     createdAt: "2023-01-01",
     visits: 0
   }
+
 };
 
 //Registered Users
@@ -61,10 +70,10 @@ const users = {
     email: "user2@example.com",
     password: "dishwasher-funk",
   },
-  admin: {
-    id: "admin",
-    email: "vik.ristic@gmail.com",
-    password: "123test"
+  aCJZuBd: {
+    id: 'aCJZuBd',
+    email: 'admin@test.com',
+    password: '$2a$10$oSXgnrdULb5xplK3/4/B2uqCQGL3v9Zy/ZKfPYfNNxzlrIl08/BpC'
   }
 };
 
@@ -300,6 +309,8 @@ app.post("/register", (req, res) => {
     //Add email and password values to new user
     users[userId] = {id: userId, email: req.body.email,
       password: bcrypt.hashSync(req.body.password, 10)};
+
+    console.log(users[userId]);
     
     //Set cookie to logged-in state
     req.session.user_id = userId;
